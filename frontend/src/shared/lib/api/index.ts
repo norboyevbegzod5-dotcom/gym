@@ -1,5 +1,6 @@
 import axios from 'axios';
 import i18n from '../i18n';
+import { useUserStore, APP_TOKEN_KEY } from '../store/userStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -10,26 +11,27 @@ export const api = axios.create({
   },
 });
 
-// Интерцептор для добавления Telegram init data и языка
+// Добавляем Bearer токен и язык к запросам
 api.interceptors.request.use((config) => {
-  const tg = window.Telegram?.WebApp;
-  
-  // Добавляем Telegram init data для авторизации
-  if (tg?.initData) {
-    config.headers['X-Telegram-Init-Data'] = tg.initData;
+  const token = localStorage.getItem(APP_TOKEN_KEY);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  
-  // Добавляем текущий язык
   config.headers['Accept-Language'] = i18n.language;
-  
   return config;
 });
 
-// Обработка ошибок
+// При 401 очищаем токен, сбрасываем user и редиректим на /login
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Можно добавить обработку 401, показ ошибок и т.д.
+    if (error.response?.status === 401) {
+      localStorage.removeItem(APP_TOKEN_KEY);
+      useUserStore.getState().setUser(null);
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
+    }
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error);
   }
@@ -64,6 +66,11 @@ export const barApi = {
     api.post('/bar/orders', { items }),
   
   getMyOrders: () => api.get('/bar/orders'),
+};
+
+export const authApi = {
+  loginByPhone: (phone: string) =>
+    api.post<{ token: string; user: { id: string; phone: string | null; firstName: string | null; lastName: string | null; username: string | null; language: string } }>('/auth/phone', { phone }),
 };
 
 export const usersApi = {

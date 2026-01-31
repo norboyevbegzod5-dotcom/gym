@@ -108,6 +108,15 @@
     "unfreezeMembership": "Ochish",
     "includedInMembership": "Abonementga kiritilgan"
   },
+  "auth": {
+    "title": "Kirish",
+    "subtitle": "Kirish uchun telefon raqamingizni kiriting",
+    "phone": "Telefon raqami",
+    "enter": "Kirish",
+    "enterPhone": "Telefon raqamini kiriting",
+    "error": "Kirish xatosi. Raqamni tekshiring va qayta urinib ko'ring.",
+    "logout": "Chiqish"
+  },
   "info": {
     "title": "Klub haqida",
     "address": "Manzil",

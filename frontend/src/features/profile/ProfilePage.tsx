@@ -1,6 +1,7 @@
 import { useTranslation, changeLanguage, languages, getCurrentLanguage } from '@/shared/lib/i18n';
 import { useUserStore } from '@/shared/lib/store/userStore';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { bookingsApi, usersApi, membershipsApi } from '@/shared/lib/api';
 
 interface Membership {
@@ -50,7 +51,9 @@ const MOTIVATIONAL_QUOTES = {
 
 export const ProfilePage = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
+  const logout = useUserStore((state) => state.logout);
   const [currentLang, setCurrentLang] = useState(getCurrentLanguage());
   const [goal, setGoal] = useState(12); // Default: 12 workouts per month
   const [completed, setCompleted] = useState(0);
@@ -375,6 +378,18 @@ export const ProfilePage = () => {
             )}
           </div>
         </div>
+        {/* Выйти — сразу под карточкой пользователя, видно без прокрутки */}
+        <button
+          type="button"
+          className="logout-btn profile-logout"
+          onClick={() => {
+            logout();
+            navigate('/login', { replace: true });
+            window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
+          }}
+        >
+          🚪 {t('auth.logout')}
+        </button>
       </div>
 
       {/* Language Selection */}
@@ -915,6 +930,27 @@ const styles = `
     font-size: 16px;
     font-weight: 600;
     color: var(--text-primary);
+  }
+
+  .logout-btn,
+  .logout-btn.profile-logout {
+    width: 100%;
+    padding: 16px 20px;
+    background: rgba(255, 68, 68, 0.15);
+    border: 2px solid rgba(255, 68, 68, 0.3);
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--error);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+
+  .logout-btn:hover,
+  .logout-btn.profile-logout:hover {
+    background: rgba(255, 68, 68, 0.25);
+    border-color: var(--error);
   }
 
   .modal-overlay {

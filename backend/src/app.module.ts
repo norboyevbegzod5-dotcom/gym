@@ -9,6 +9,8 @@ import { BarModule } from './modules/bar/bar.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { MembershipsModule } from './modules/memberships/memberships.module';
 import { TelegramModule } from './telegram/telegram.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { AppGuardModule } from './modules/app-guard/app-guard.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { TelegramModule } from './telegram/telegram.module';
       isGlobal: true,
     }),
     PrismaModule,
+    AppGuardModule,
+    AuthModule,
     UsersModule,
     BookingsModule,
     ServicesModule,

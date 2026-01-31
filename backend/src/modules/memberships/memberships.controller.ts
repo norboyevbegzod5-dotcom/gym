@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Query, Headers, UseGuards } from '@nestjs/common';
 import { MembershipsService } from './memberships.service';
-import { TelegramAuthGuard } from '../../shared/guards/telegram-auth.guard';
+import { AppAuthGuard } from '../../shared/guards/app-auth.guard';
 import { CurrentUser } from '../../shared/decorators/user.decorator';
 
 @Controller('memberships')
@@ -19,7 +19,7 @@ export class MembershipsController {
    * Получить активный абонемент текущего пользователя
    */
   @Get('my')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(AppAuthGuard)
   async getMyMembership(@CurrentUser() user: { id: string }) {
     return this.membershipsService.getUserActiveMembership(user.id);
   }
@@ -28,7 +28,7 @@ export class MembershipsController {
    * Заморозить абонемент
    */
   @Post('my/freeze')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(AppAuthGuard)
   async freezeMembership(@CurrentUser() user: { id: string }) {
     return this.membershipsService.freezeMembership(user.id);
   }
@@ -37,7 +37,7 @@ export class MembershipsController {
    * Разморозить абонемент
    */
   @Post('my/unfreeze')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(AppAuthGuard)
   async unfreezeMembership(@CurrentUser() user: { id: string }) {
     return this.membershipsService.unfreezeMembership(user.id);
   }
@@ -46,7 +46,7 @@ export class MembershipsController {
    * Проверить, покрывается ли услуга абонементом
    */
   @Get('check-service')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(AppAuthGuard)
   async checkService(
     @CurrentUser() user: { id: string },
     @Query('serviceId') serviceId: string,

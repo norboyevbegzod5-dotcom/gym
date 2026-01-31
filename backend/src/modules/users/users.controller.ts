@@ -1,11 +1,11 @@
 import { Controller, Get, Patch, Body, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { TelegramAuthGuard } from '../../shared/guards/telegram-auth.guard';
+import { AppAuthGuard } from '../../shared/guards/app-auth.guard';
 import { CurrentUser } from '../../shared/decorators/user.decorator';
 import { User } from '@prisma/client';
 
 @Controller('users')
-@UseGuards(TelegramAuthGuard)
+@UseGuards(AppAuthGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 

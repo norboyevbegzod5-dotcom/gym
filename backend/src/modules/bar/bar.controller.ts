@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { BarService } from './bar.service';
-import { TelegramAuthGuard } from '../../shared/guards/telegram-auth.guard';
+import { AppAuthGuard } from '../../shared/guards/app-auth.guard';
 import { CurrentUser } from '../../shared/decorators/user.decorator';
 import { User } from '@prisma/client';
 
@@ -14,7 +14,7 @@ export class BarController {
   }
 
   @Post('orders')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(AppAuthGuard)
   async createOrder(
     @CurrentUser() user: User,
     @Body() dto: { items: Array<{ itemId: string; quantity: number }> },
@@ -23,7 +23,7 @@ export class BarController {
   }
 
   @Get('orders')
-  @UseGuards(TelegramAuthGuard)
+  @UseGuards(AppAuthGuard)
   async getMyOrders(@CurrentUser() user: User) {
     return this.barService.getUserOrders(user.id);
   }

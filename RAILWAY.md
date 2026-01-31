@@ -54,11 +54,11 @@
 
 1. **Build Command** можно оставить пустым: по умолчанию Railway выполнит `npm install` и `npm run build`. В проекте скрипт `build` уже включает `prisma generate`.
 
-2. **Start Command** (в **Settings** → **Deploy**):
+2. **Start Command** (в **Settings** → **Deploy**): можно не указывать — в проекте уже задано в `nixpacks.toml`:
    ```bash
-   npx prisma db push && node dist/main.js
+   npx prisma migrate deploy && node dist/main.js
    ```
-   Так при каждом запуске схема БД подтягивается, а потом стартует API.
+   При каждом запуске применяются миграции, затем стартует API.
 
 3. **Root Directory** (если ещё не указали): `backend`.
 
@@ -97,7 +97,7 @@ API будет доступен по адресу: **`https://xxx.up.railway.app
 - [ ] PostgreSQL добавлен, `DATABASE_URL` подключён к сервису gym.
 - [ ] Проект создан, сервис из папки `backend` добавлен.
 - [ ] Заданы `TELEGRAM_BOT_TOKEN`, `WEBAPP_URL`, `FRONTEND_URL`, `JWT_SECRET`.
-- [ ] Start Command: `npx prisma db push && node dist/main.js`.
+- [ ] Start Command (или nixpacks): `npx prisma migrate deploy && node dist/main.js`.
 - [ ] Сгенерирован домен, URL скопирован в Vercel (Frontend + Admin) и в BotFather (Menu Button).
 
 **Деплой без домена:** [VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md).

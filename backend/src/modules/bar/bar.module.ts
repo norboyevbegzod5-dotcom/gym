@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { BarController } from './bar.controller';
 import { BarService } from './bar.service';
-import { TelegramAuthGuard } from '../../shared/guards/telegram-auth.guard';
+import { AppGuardModule } from '../app-guard/app-guard.module';
 
 @Module({
+  imports: [AppGuardModule],
   controllers: [BarController],
-  providers: [BarService, TelegramAuthGuard],
+  providers: [BarService],
   exports: [BarService],
 })
 export class BarModule {}
