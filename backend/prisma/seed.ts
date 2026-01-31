@@ -77,14 +77,17 @@ async function main() {
 
   console.log(`✅ Created ${categories.length} categories`);
 
-  // Услуги
+  // Услуги (создаём только если ещё нет)
   const membership = categories.find(c => c.slug === 'membership')!;
   const group = categories.find(c => c.slug === 'group')!;
   const personal = categories.find(c => c.slug === 'personal')!;
   const massage = categories.find(c => c.slug === 'massage')!;
   const sauna = categories.find(c => c.slug === 'sauna')!;
 
-  const services = await Promise.all([
+  const existingServicesCount = await prisma.service.count();
+  const services = existingServicesCount > 0
+    ? await prisma.service.findMany({ include: { category: true } })
+    : await Promise.all([
     // Абонементы
     prisma.service.create({
       data: {
@@ -186,7 +189,7 @@ async function main() {
     }),
   ]);
 
-  console.log(`✅ Created ${services.length} services`);
+  console.log(existingServicesCount > 0 ? `✅ Services already exist (${services.length})` : `✅ Created ${services.length} services`);
 
   // Категории бара
   const barCategories = await Promise.all([
@@ -243,8 +246,10 @@ async function main() {
   const drinksCat = barCategories.find(c => c.slug === 'drinks')!;
   const snacksCat = barCategories.find(c => c.slug === 'snacks')!;
 
-  // Позиции бара с КБЖУ
-  const barItems = await Promise.all([
+  const existingBarItemsCount = await prisma.barItem.count();
+  const barItems = existingBarItemsCount > 0
+    ? await prisma.barItem.findMany()
+    : await Promise.all([
     // Протеин
     prisma.barItem.create({
       data: {
@@ -473,17 +478,26 @@ async function main() {
     }),
   ]);
 
-  console.log(`✅ Created ${barItems.length} bar items`);
+  console.log(existingBarItemsCount > 0 ? `✅ Bar items already exist (${barItems.length})` : `✅ Created ${barItems.length} bar items`);
 
-  // Слоты на ближайшие дни
-  const yoga = services.find(s => s.nameRu === 'Йога')!;
-  const aerobics = services.find(s => s.nameRu === 'Аэробика')!;
-  const personalTraining = services.find(s => s.nameRu === 'Персональная тренировка')!;
-  const classicMassage = services.find(s => s.nameRu === 'Классический массаж')!;
-  const sportMassage = services.find(s => s.nameRu === 'Спортивный массаж')!;
-  const saunaService = services.find(s => s.nameRu === 'Сауна (1 час)')!;
+  // Слоты на ближайшие дни (создаём только если ещё нет на ближайшую неделю)
+  const yoga = services.find((s: { nameRu: string }) => s.nameRu === 'Йога')!;
+  const aerobics = services.find((s: { nameRu: string }) => s.nameRu === 'Аэробика')!;
+  const personalTraining = services.find((s: { nameRu: string }) => s.nameRu === 'Персональная тренировка')!;
+  const classicMassage = services.find((s: { nameRu: string }) => s.nameRu === 'Классический массаж')!;
+  const sportMassage = services.find((s: { nameRu: string }) => s.nameRu === 'Спортивный массаж')!;
+  const saunaService = services.find((s: { nameRu: string }) => s.nameRu === 'Сауна (1 час)')!;
 
   const today = new Date();
+  const weekFromNow = new Date(today);
+  weekFromNow.setDate(weekFromNow.getDate() + 7);
+  const existingSlotsCount = await prisma.slot.count({
+    where: { date: { gte: today, lte: weekFromNow } },
+  });
+
+  if (existingSlotsCount > 0) {
+    console.log(`✅ Slots already exist for next 7 days (${existingSlotsCount}), skipping`);
+  } else {
   const slots = [];
 
   for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
@@ -611,6 +625,7 @@ async function main() {
 
   await Promise.all(slots);
   console.log(`✅ Created ${slots.length} time slots for next 7 days`);
+  }
 
   console.log('🎉 Seeding complete!');
 }
