@@ -1,6 +1,8 @@
 # Деплой бэкенда на Railway
 
-Пошаговая инструкция: развернуть API (NestJS + Prisma + SQLite) на Railway.
+Пошаговая инструкция: развернуть API (NestJS + Prisma + PostgreSQL) на Railway.
+
+**Без покупки домена:** API на Railway, Mini App и админка на Vercel, см. [VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md).
 
 ---
 
@@ -11,7 +13,14 @@
 
 ---
 
-## Шаг 2. Добавить сервис (бэкенд)
+## Шаг 2. Добавить PostgreSQL
+
+1. Откройте проект → **+ New** → **Database** → **PostgreSQL**.
+2. Railway создаст базу и переменную `DATABASE_URL`.
+
+---
+
+## Шаг 3. Добавить сервис (бэкенд)
 
 - Если **Deploy from GitHub**:
   - Выберите репозиторий с проектом GYM APP.
@@ -20,17 +29,7 @@
 - Если **Empty Project**:
   - Нажмите **Add Service** → **GitHub Repo** и выберите репозиторий, Root Directory: `backend`.
 
----
-
-## Шаг 3. Volume для SQLite (чтобы база не пропадала)
-
-1. Откройте созданный сервис (бэкенд).
-2. Вкладка **Variables** или **Settings** → **Volumes**.
-3. **Add Volume** → Mount Path: `/data`.
-4. В **Variables** добавьте переменную:
-   - `DATABASE_URL` = `file:/data/prod.db`
-
-Так база будет храниться на диске, а не в контейнере.
+**Связать с PostgreSQL:** в сервисе gym → **Variables** → **Add Reference** → выберите `DATABASE_URL` из PostgreSQL.
 
 ---
 
@@ -42,8 +41,8 @@
 |------------|----------|-------------|
 | `NODE_ENV` | `production` | да |
 | `TELEGRAM_BOT_TOKEN` | Токен от @BotFather | да |
-| `WEBAPP_URL` | URL Mini App (например `https://your-app.vercel.app/app`) | да |
-| `FRONTEND_URL` | Тот же домен фронта (например `https://your-app.vercel.app`) | да |
+| `WEBAPP_URL` | URL Mini App (например `https://gym-app.vercel.app`) | да |
+| `FRONTEND_URL` | Тот же URL Mini App (например `https://gym-app.vercel.app`) | да |
 | `JWT_SECRET` | Длинная случайная строка для админки | да |
 | `ADMIN_CHAT_ID` | (по желанию) ID чата для уведомлений | нет |
 
@@ -95,11 +94,12 @@ API будет доступен по адресу: **`https://xxx.up.railway.app
 
 ## Краткий чеклист
 
+- [ ] PostgreSQL добавлен, `DATABASE_URL` подключён к сервису gym.
 - [ ] Проект создан, сервис из папки `backend` добавлен.
-- [ ] Volume с путём `/data`, переменная `DATABASE_URL=file:/data/prod.db`.
 - [ ] Заданы `TELEGRAM_BOT_TOKEN`, `WEBAPP_URL`, `FRONTEND_URL`, `JWT_SECRET`.
-- [ ] Build: `npm ci && npx prisma generate && npm run build`.
-- [ ] Start: `npx prisma db push && node dist/main.js`.
-- [ ] Сгенерирован домен, URL скопирован в фронт и в BotFather (Menu Button).
+- [ ] Start Command: `npx prisma db push && node dist/main.js`.
+- [ ] Сгенерирован домен, URL скопирован в Vercel (Frontend + Admin) и в BotFather (Menu Button).
+
+**Деплой без домена:** [VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md).
 
 В `backend/package.json` скрипт `build` уже вызывает `prisma generate`, поэтому отдельно настраивать Build Command не нужно.
