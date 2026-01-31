@@ -379,6 +379,12 @@ export class AdminController implements OnModuleInit {
     return this.adminService.createClient(body);
   }
 
+  @Post('clients/merge-duplicates')
+  async mergeDuplicatePhones(@Headers('authorization') auth: string) {
+    await this.verifyAdmin(auth);
+    return this.adminService.mergeDuplicatePhones();
+  }
+
   // ==================== BROADCAST ====================
 
   @Post('broadcast')

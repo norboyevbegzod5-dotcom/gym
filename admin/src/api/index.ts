@@ -127,6 +127,8 @@ export const clientsApi = {
   getById: (id: string) => api.get(`/clients/${id}`),
   create: (data: { firstName: string; lastName?: string; phone?: string }) =>
     api.post('/clients', data),
+  mergeDuplicates: () =>
+    api.post<{ merged: number; mergedPhones: string[] }>('/clients/merge-duplicates'),
 };
 
 export const broadcastApi = {

@@ -44,7 +44,12 @@ export const AdminLayout = ({ children, onLogout }: AdminLayoutProps) => {
     <div className="admin-layout">
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h1>CentrisFit</h1>
+          <div className="sidebar-header-top">
+            <h1>CentrisFit</h1>
+            <button type="button" className="logout-btn-header" onClick={onLogout} title="Выйти">
+              🚪 Выйти
+            </button>
+          </div>
           <span>Admin Panel</span>
         </div>
 
@@ -99,10 +104,34 @@ export const AdminLayout = ({ children, onLogout }: AdminLayoutProps) => {
           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .sidebar-header-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 4px;
+        }
+
         .sidebar-header h1 {
           font-size: 20px;
           font-weight: 700;
-          margin-bottom: 4px;
+          margin: 0;
+        }
+
+        .logout-btn-header {
+          padding: 6px 12px;
+          background: rgba(255, 255, 255, 0.15);
+          color: #fff;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          font-size: 13px;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: background 0.2s;
+        }
+
+        .logout-btn-header:hover {
+          background: rgba(255, 255, 255, 0.25);
         }
 
         .sidebar-header span {

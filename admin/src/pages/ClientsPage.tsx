@@ -27,6 +27,8 @@ export const ClientsPage = () => {
   const [showAddClientModal, setShowAddClientModal] = useState(false);
   const [addClientForm, setAddClientForm] = useState({ firstName: '', lastName: '', phone: '' });
   const [addClientSaving, setAddClientSaving] = useState(false);
+  const [mergeLoading, setMergeLoading] = useState(false);
+  const [mergeResult, setMergeResult] = useState<{ merged: number; mergedPhones: string[] } | null>(null);
 
   const fetchClients = async () => {
     setLoading(true);
@@ -171,7 +173,32 @@ export const ClientsPage = () => {
           >
             📢 Рассылка {selectedClients.size > 0 && `(${selectedClients.size})`}
           </button>
+          <button
+            className="btn-merge"
+            onClick={async () => {
+              setMergeLoading(true);
+              setMergeResult(null);
+              try {
+                const res = await clientsApi.mergeDuplicates();
+                setMergeResult(res.data);
+                await fetchClients();
+              } catch (err) {
+                console.error('Merge failed:', err);
+              } finally {
+                setMergeLoading(false);
+              }
+            }}
+            disabled={mergeLoading}
+            title="Один номер телефона — один клиент. Объединяет дубликаты."
+          >
+            {mergeLoading ? '...' : '🔗 Объединить дубликаты по телефону'}
+          </button>
         </div>
+        {mergeResult && mergeResult.merged > 0 && (
+          <div className="merge-result">
+            Объединено: {mergeResult.merged} дубликат(ов) по номерам {mergeResult.mergedPhones.join(', ')}.
+          </div>
+        )}
       </div>
 
       <div className="clients-table">
@@ -524,6 +551,36 @@ const styles = `
 
   .btn-add-client:hover {
     background: #1b5e20;
+  }
+
+  .btn-merge {
+    padding: 10px 20px;
+    background: #5c6bc0;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-merge:hover:not(:disabled) {
+    background: #3f51b5;
+  }
+
+  .btn-merge:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .merge-result {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 8px;
+    font-size: 14px;
   }
 
   .actions {

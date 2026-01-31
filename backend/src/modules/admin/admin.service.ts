@@ -640,6 +640,71 @@ export class AdminService {
     });
   }
 
+  /** Нормализовать телефон (только цифры) */
+  private normalizePhone(phone: string | null): string | null {
+    if (!phone) return null;
+    const digits = phone.replace(/\D/g, '');
+    return digits.length > 0 ? digits : null;
+  }
+
+  /**
+   * Объединить дубликаты по номеру телефона: один номер — один клиент.
+   * Оставляем пользователя с «настоящим» telegramId (не phone-xxx), переносим на него записи и заказы, остальных удаляем.
+   */
+  async mergeDuplicatePhones(): Promise<{ merged: number; mergedPhones: string[] }> {
+    const users = await this.prisma.user.findMany({
+      where: { phone: { not: null } },
+      include: {
+        _count: { select: { bookings: true, barOrders: true, memberships: true } },
+      },
+    });
+
+    const byPhone = new Map<string, typeof users>();
+    for (const u of users) {
+      const normalized = this.normalizePhone(u.phone);
+      if (!normalized) continue;
+      if (!byPhone.has(normalized)) byPhone.set(normalized, []);
+      byPhone.get(normalized)!.push(u);
+    }
+
+    let merged = 0;
+    const mergedPhones: string[] = [];
+
+    for (const [phone, group] of byPhone) {
+      if (group.length < 2) continue;
+
+      // Оставляем того, у кого telegramId не "phone-..." (предпочтительно «настоящий» пользователь Telegram)
+      const sorted = [...group].sort((a, b) => {
+        const aIsPhone = a.telegramId.startsWith('phone-') ? 1 : 0;
+        const bIsPhone = b.telegramId.startsWith('phone-') ? 1 : 0;
+        if (aIsPhone !== bIsPhone) return aIsPhone - bIsPhone;
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      });
+      const keep = sorted[0];
+      const toRemove = sorted.slice(1);
+
+      for (const dup of toRemove) {
+        await this.prisma.booking.updateMany({ where: { userId: dup.id }, data: { userId: keep.id } });
+        await this.prisma.barOrder.updateMany({ where: { userId: dup.id }, data: { userId: keep.id } });
+        await this.prisma.userMembership.updateMany({ where: { userId: dup.id }, data: { userId: keep.id } });
+        await this.prisma.user.delete({ where: { id: dup.id } });
+        merged++;
+      }
+
+      if (toRemove.length > 0) {
+        mergedPhones.push(phone);
+        if (!keep.phone || this.normalizePhone(keep.phone) !== phone) {
+          await this.prisma.user.update({
+            where: { id: keep.id },
+            data: { phone: phone },
+          });
+        }
+      }
+    }
+
+    return { merged, mergedPhones };
+  }
+
   // ==================== BROADCAST ====================
 
   async sendBroadcast(message: string, userIds?: string[]) {
