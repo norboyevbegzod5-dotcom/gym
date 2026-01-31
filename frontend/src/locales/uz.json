@@ -1,0 +1,118 @@
+{
+  "common": {
+    "confirm": "Tasdiqlash",
+    "cancel": "Bekor qilish",
+    "save": "Saqlash",
+    "back": "Orqaga",
+    "loading": "Yuklanmoqda...",
+    "error": "Xatolik yuz berdi",
+    "retry": "Qayta urinish",
+    "close": "Yopish",
+    "yes": "Ha",
+    "no": "Yo'q"
+  },
+  "main": {
+    "title": "Fitnes klub",
+    "menu": {
+      "services": "Xizmatlar",
+      "myBookings": "Mening yozuvlarim",
+      "bar": "Bar",
+      "profile": "Profil",
+      "info": "Klub haqida"
+    }
+  },
+  "services": {
+    "title": "Bizning xizmatlar",
+    "categories": {
+      "membership": "Abonementlar",
+      "group": "Guruh mashg'ulotlari",
+      "personal": "Shaxsiy mashg'ulotlar",
+      "massage": "Massaj",
+      "sauna": "Sauna",
+      "solarium": "Solyariy"
+    },
+    "book": "Yozilish",
+    "price": "Narx",
+    "duration": "{{minutes}} min",
+    "availableSlots": "Bo'sh vaqtlar",
+    "empty": "Bu kategoriyada hali xizmatlar yo'q"
+  },
+  "bookings": {
+    "title": "Mening yozuvlarim",
+    "empty": "Sizda hali yozuvlar yo'q",
+    "upcoming": "Kelgusi",
+    "past": "O'tgan",
+    "cancelBooking": "Yozuvni bekor qilish",
+    "confirmCancel": "Yozuvni bekor qilmoqchimisiz?",
+    "status": {
+      "PENDING": "Kutilmoqda",
+      "CONFIRMED": "Tasdiqlangan ✓",
+      "CANCELLED_BY_USER": "Siz bekor qildingiz",
+      "CANCELLED_BY_ADMIN": "Klub bekor qildi",
+      "COMPLETED": "Yakunlangan"
+    }
+  },
+  "booking": {
+    "title": "Xizmatga yozilish",
+    "selectDate": "Sanani tanlang",
+    "selectTime": "Vaqtni tanlang",
+    "specialist": "Mutaxassis",
+    "confirm": "Yozilishni tasdiqlash",
+    "success": "Siz muvaffaqiyatli yozildingiz!",
+    "noSlots": "Bu sanada bo'sh vaqt yo'q",
+    "today": "Bugun",
+    "tomorrow": "Ertaga"
+  },
+  "bar": {
+    "title": "Bar",
+    "menu": "Menyu",
+    "cart": "Savat",
+    "order": "Buyurtma berish",
+    "total": "Jami",
+    "empty": "Savat bo'sh",
+    "addToCart": "Qo'shish",
+    "orderSuccess": "Buyurtma qabul qilindi!",
+    "myOrders": "Mening buyurtmalarim",
+    "noOrders": "Sizda hali buyurtmalar yo'q",
+    "status": {
+      "PENDING": "Qabul qilindi",
+      "PREPARING": "Tayyorlanmoqda",
+      "READY": "Tayyor! Bardan oling",
+      "COMPLETED": "Berildi",
+      "CANCELLED": "Bekor qilindi"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Til",
+    "phone": "Telefon",
+    "editPhone": "Telefonni o'zgartirish",
+    "notifications": "Bildirishnomalar",
+    "monthlyProgress": "Oylik rivojlanish",
+    "goal": "Maqsad",
+    "achieved": "Bajarildi",
+    "remaining": "Qoldi",
+    "setGoal": "Maqsadni belgilash",
+    "goalHint": "Oyiga nechta mashg'ulot?",
+    "goalReached": "Maqsadga erishildi! Shunday davom eting!",
+    "membership": "Mening abonementim",
+    "membershipActive": "Faol",
+    "membershipFrozen": "Muzlatilgan",
+    "unlimited": "Cheksiz",
+    "visits": "Tashriflar bo'yicha",
+    "validUntil": "Amal qiladi",
+    "daysLeft": "Kunlar qoldi",
+    "visitsLeft": "Tashriflar qoldi",
+    "freezeDays": "Muzlatish kunlari",
+    "freezeMembership": "Muzlatish",
+    "unfreezeMembership": "Ochish",
+    "includedInMembership": "Abonementga kiritilgan"
+  },
+  "info": {
+    "title": "Klub haqida",
+    "address": "Manzil",
+    "phone": "Telefon",
+    "workingHours": "Ish vaqti",
+    "contacts": "Kontaktlar"
+  }
+}

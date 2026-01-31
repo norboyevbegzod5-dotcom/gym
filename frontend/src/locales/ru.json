@@ -1,0 +1,118 @@
+{
+  "common": {
+    "confirm": "Подтвердить",
+    "cancel": "Отменить",
+    "save": "Сохранить",
+    "back": "Назад",
+    "loading": "Загрузка...",
+    "error": "Произошла ошибка",
+    "retry": "Повторить",
+    "close": "Закрыть",
+    "yes": "Да",
+    "no": "Нет"
+  },
+  "main": {
+    "title": "Фитнес-клуб",
+    "menu": {
+      "services": "Услуги",
+      "myBookings": "Мои записи",
+      "bar": "Бар",
+      "profile": "Профиль",
+      "info": "О клубе"
+    }
+  },
+  "services": {
+    "title": "Наши услуги",
+    "categories": {
+      "membership": "Абонементы",
+      "group": "Групповые занятия",
+      "personal": "Персональные тренировки",
+      "massage": "Массаж",
+      "sauna": "Сауна",
+      "solarium": "Солярий"
+    },
+    "book": "Записаться",
+    "price": "Цена",
+    "duration": "{{minutes}} мин",
+    "availableSlots": "Доступные слоты",
+    "empty": "В этой категории пока нет услуг"
+  },
+  "bookings": {
+    "title": "Мои записи",
+    "empty": "У вас пока нет записей",
+    "upcoming": "Предстоящие",
+    "past": "Прошедшие",
+    "cancelBooking": "Отменить запись",
+    "confirmCancel": "Вы уверены, что хотите отменить запись?",
+    "status": {
+      "PENDING": "Ожидает подтверждения",
+      "CONFIRMED": "Подтверждено ✓",
+      "CANCELLED_BY_USER": "Отменено вами",
+      "CANCELLED_BY_ADMIN": "Отменено клубом",
+      "COMPLETED": "Завершено"
+    }
+  },
+  "booking": {
+    "title": "Запись на услугу",
+    "selectDate": "Выберите дату",
+    "selectTime": "Выберите время",
+    "specialist": "Специалист",
+    "confirm": "Подтвердить запись",
+    "success": "Вы успешно записаны!",
+    "noSlots": "Нет доступных слотов на эту дату",
+    "today": "Сегодня",
+    "tomorrow": "Завтра"
+  },
+  "bar": {
+    "title": "Бар",
+    "menu": "Меню",
+    "cart": "Корзина",
+    "order": "Оформить заказ",
+    "total": "Итого",
+    "empty": "Корзина пуста",
+    "addToCart": "Добавить",
+    "orderSuccess": "Заказ оформлен!",
+    "myOrders": "Мои заказы",
+    "noOrders": "У вас пока нет заказов",
+    "status": {
+      "PENDING": "Принят в обработку",
+      "PREPARING": "Готовится",
+      "READY": "Готов! Заберите в баре",
+      "COMPLETED": "Выдан",
+      "CANCELLED": "Отменён"
+    }
+  },
+  "profile": {
+    "title": "Профиль",
+    "language": "Язык",
+    "phone": "Телефон",
+    "editPhone": "Изменить телефон",
+    "notifications": "Уведомления",
+    "monthlyProgress": "Прогресс за месяц",
+    "goal": "Цель",
+    "achieved": "Выполнено",
+    "remaining": "Осталось",
+    "setGoal": "Установить цель",
+    "goalHint": "Сколько тренировок в месяц?",
+    "goalReached": "Цель достигнута! Так держать!",
+    "membership": "Мой абонемент",
+    "membershipActive": "Активен",
+    "membershipFrozen": "Заморожен",
+    "unlimited": "Безлимит",
+    "visits": "По визитам",
+    "validUntil": "Действует до",
+    "daysLeft": "Осталось дней",
+    "visitsLeft": "Осталось визитов",
+    "freezeDays": "Дней заморозки",
+    "freezeMembership": "Заморозить",
+    "unfreezeMembership": "Разморозить",
+    "includedInMembership": "Включено в абонемент"
+  },
+  "info": {
+    "title": "О клубе",
+    "address": "Адрес",
+    "phone": "Телефон",
+    "workingHours": "Режим работы",
+    "contacts": "Контакты"
+  }
+}

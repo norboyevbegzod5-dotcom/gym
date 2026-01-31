@@ -1,0 +1,278 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Клиент (пользователь Telegram)
+model User {
+  id          String    @id @default(cuid())
+  telegramId  String    @unique @map("telegram_id")
+  firstName   String?   @map("first_name")
+  lastName    String?   @map("last_name")
+  username    String?
+  phone       String?
+  language    String    @default("ru")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  bookings    Booking[]
+  barOrders   BarOrder[]
+  memberships UserMembership[]
+
+  @@map("users")
+}
+
+// Категория услуг
+model ServiceCategory {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  nameRu      String    @map("name_ru")
+  nameUz      String?   @map("name_uz")
+  nameEn      String?   @map("name_en")
+  icon        String?
+  sortOrder   Int       @default(0) @map("sort_order")
+  isActive    Boolean   @default(true) @map("is_active")
+
+  services    Service[]
+
+  @@map("service_categories")
+}
+
+// Услуга
+model Service {
+  id            String          @id @default(cuid())
+  categoryId    String          @map("category_id")
+  category      ServiceCategory @relation(fields: [categoryId], references: [id])
+  
+  nameRu        String          @map("name_ru")
+  nameUz        String?         @map("name_uz")
+  nameEn        String?         @map("name_en")
+  descriptionRu String?         @map("description_ru")
+  descriptionUz String?         @map("description_uz")
+  descriptionEn String?         @map("description_en")
+  
+  price         Float
+  duration      Int?            // в минутах
+  capacity      Int             @default(1) // макс. мест
+  isActive      Boolean         @default(true) @map("is_active")
+
+  slots         Slot[]
+  planServices  PlanService[]
+
+  @@map("services")
+}
+
+// Слот расписания
+model Slot {
+  id          String    @id @default(cuid())
+  serviceId   String    @map("service_id")
+  service     Service   @relation(fields: [serviceId], references: [id])
+  
+  date        DateTime
+  startTime   DateTime  @map("start_time")
+  endTime     DateTime  @map("end_time")
+  
+  specialist  String?   // имя тренера/специалиста
+  capacity    Int       @default(1)
+  bookedCount Int       @default(0) @map("booked_count")
+  
+  // SlotStatus: ACTIVE, CANCELLED, HIDDEN
+  status      String    @default("ACTIVE")
+  
+  bookings    Booking[]
+
+  @@map("slots")
+}
+
+// Бронирование
+model Booking {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  user         User     @relation(fields: [userId], references: [id])
+  slotId       String   @map("slot_id")
+  slot         Slot     @relation(fields: [slotId], references: [id])
+  
+  // BookingStatus: PENDING, CONFIRMED, CANCELLED_BY_USER, CANCELLED_BY_ADMIN, COMPLETED
+  status       String   @default("PENDING")
+  comment      String?
+  isMembership Boolean  @default(false) @map("is_membership") // оплачено по абонементу
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("bookings")
+}
+
+// Категория бара
+model BarCategory {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  nameRu      String    @map("name_ru")
+  nameUz      String?   @map("name_uz")
+  nameEn      String?   @map("name_en")
+  icon        String?
+  sortOrder   Int       @default(0) @map("sort_order")
+  isActive    Boolean   @default(true) @map("is_active")
+
+  items       BarItem[]
+
+  @@map("bar_categories")
+}
+
+// Позиция бара
+model BarItem {
+  id            String       @id @default(cuid())
+  categoryId    String       @map("category_id")
+  category      BarCategory  @relation(fields: [categoryId], references: [id])
+  
+  nameRu        String       @map("name_ru")
+  nameUz        String?      @map("name_uz")
+  nameEn        String?      @map("name_en")
+  descriptionRu String?      @map("description_ru")
+  descriptionUz String?      @map("description_uz")
+  descriptionEn String?      @map("description_en")
+  
+  price         Float
+  imageUrl      String?      @map("image_url")
+  
+  // Объём/размер (мл, г)
+  volume        String?      // "500ml", "300g", "1 шт"
+  
+  // КБЖУ (калории, белки, жиры, углеводы)
+  calories      Int?         // ккал
+  proteins      Float?       // г белка
+  fats          Float?       // г жира
+  carbs         Float?       // г углеводов
+  
+  isAvailable   Boolean      @default(true) @map("is_available")
+  sortOrder     Int          @default(0) @map("sort_order")
+
+  orderItems    BarOrderItem[]
+
+  @@map("bar_items")
+}
+
+// Заказ в баре
+model BarOrder {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  
+  // BarOrderStatus: PENDING, PREPARING, READY, COMPLETED, CANCELLED
+  status    String   @default("PENDING")
+  total     Float
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items     BarOrderItem[]
+
+  @@map("bar_orders")
+}
+
+model BarOrderItem {
+  id        String   @id @default(cuid())
+  orderId   String   @map("order_id")
+  order     BarOrder @relation(fields: [orderId], references: [id])
+  itemId    String   @map("item_id")
+  item      BarItem  @relation(fields: [itemId], references: [id])
+  
+  quantity  Int
+  price     Float
+
+  @@map("bar_order_items")
+}
+
+// Админ
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  // AdminRole: SUPER_ADMIN, MANAGER, STAFF
+  role      String   @default("MANAGER")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("admin_users")
+}
+
+// ==================== АБОНЕМЕНТЫ ====================
+
+// Тарифный план абонемента
+model MembershipPlan {
+  id            String   @id @default(cuid())
+  nameRu        String   @map("name_ru")
+  nameUz        String?  @map("name_uz")
+  // Тип: UNLIMITED (безлимит) или VISITS (по визитам)
+  type          String   @default("UNLIMITED")
+  durationDays  Int      @map("duration_days") // 30, 90, 365
+  totalVisits   Int?     @map("total_visits") // только для VISITS
+  maxFreezeDays Int      @default(14) @map("max_freeze_days")
+  price         Float
+  isActive      Boolean  @default(true) @map("is_active")
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  includedServices PlanService[]
+  userMemberships  UserMembership[]
+
+  @@map("membership_plans")
+}
+
+// Связь: какие услуги входят в тариф
+model PlanService {
+  id        String         @id @default(cuid())
+  planId    String         @map("plan_id")
+  plan      MembershipPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  serviceId String         @map("service_id")
+  service   Service        @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, serviceId])
+  @@map("plan_services")
+}
+
+// Абонемент пользователя
+model UserMembership {
+  id              String         @id @default(cuid())
+  userId          String         @map("user_id")
+  user            User           @relation(fields: [userId], references: [id])
+  planId          String         @map("plan_id")
+  plan            MembershipPlan @relation(fields: [planId], references: [id])
+  
+  startDate       DateTime       @map("start_date")
+  endDate         DateTime       @map("end_date")
+  remainingVisits Int?           @map("remaining_visits") // для VISITS
+  usedFreezeDays  Int            @default(0) @map("used_freeze_days")
+  
+  // Статус: ACTIVE, FROZEN, EXPIRED, CANCELLED
+  status          String         @default("ACTIVE")
+  // Тип оплаты: OFFLINE, ONLINE
+  paymentType     String         @default("OFFLINE") @map("payment_type")
+  
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  freezes         MembershipFreeze[]
+
+  @@map("user_memberships")
+}
+
+// Заморозка абонемента
+model MembershipFreeze {
+  id           String         @id @default(cuid())
+  membershipId String         @map("membership_id")
+  membership   UserMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  
+  freezeStart  DateTime       @map("freeze_start")
+  freezeEnd    DateTime?      @map("freeze_end")
+  daysFrozen   Int            @default(0) @map("days_frozen")
+  
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  @@map("membership_freezes")
+}
