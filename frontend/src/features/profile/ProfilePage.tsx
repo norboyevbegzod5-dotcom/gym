@@ -299,6 +299,34 @@ export const ProfilePage = () => {
             </div>
           )}
 
+          {/* Visits progress: "Осталось X из Y занятий" + row of used/remaining dots */}
+          {!membership.isFrozen &&
+            membership.plan.type === 'VISITS' &&
+            membership.remainingVisits !== null &&
+            membership.plan.totalVisits != null &&
+            membership.plan.totalVisits > 0 && (
+              <div className="membership-visits-progress">
+                <p className="visits-progress-text">
+                  {t('profile.visitsRemainingOf', {
+                    remaining: membership.remainingVisits,
+                    total: membership.plan.totalVisits,
+                  })}
+                </p>
+                <div className="visits-dots-row">
+                  {Array.from({ length: membership.plan.totalVisits }, (_, i) => {
+                    const used = i < membership.plan.totalVisits! - membership.remainingVisits!;
+                    return (
+                      <span
+                        key={i}
+                        className={`visits-dot ${used ? 'used' : 'remaining'}`}
+                        title={used ? t('profile.visitUsed') : t('profile.visitRemaining')}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
           {/* Calendar strip: period start – end with today marker */}
           {!membership.isFrozen && (
             <div className="membership-calendar-strip">
@@ -813,6 +841,48 @@ const styles = `
     font-weight: 700;
     color: var(--text-primary);
     text-align: center;
+  }
+
+  .membership-visits-progress {
+    margin-bottom: 20px;
+    padding: 16px 0;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+  }
+
+  .visits-progress-text {
+    margin: 0 0 14px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .visits-dots-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  .visits-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  .visits-dot.used {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .visits-dot.remaining {
+    background: var(--gradient-fire);
+    border: 1px solid rgba(255, 77, 0, 0.5);
+    box-shadow: 0 0 8px rgba(255, 77, 0, 0.4);
   }
 
   .membership-calendar-strip {

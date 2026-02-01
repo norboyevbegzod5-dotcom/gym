@@ -108,6 +108,9 @@
     "unfreezeMembership": "Разморозить",
     "includedInMembership": "Включено в абонемент",
     "visitsLeftShort": "занятий осталось",
+    "visitsRemainingOf": "Осталось {{remaining}} из {{total}} занятий",
+    "visitUsed": "Использовано",
+    "visitRemaining": "Осталось",
     "unlimitedUntil": "Безлимит до {{date}}",
     "today": "Сегодня"
   },

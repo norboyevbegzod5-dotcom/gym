@@ -108,6 +108,9 @@
     "unfreezeMembership": "Ochish",
     "includedInMembership": "Abonementga kiritilgan",
     "visitsLeftShort": "tashrif qoldi",
+    "visitsRemainingOf": "{{total}} dan {{remaining}} tashrif qoldi",
+    "visitUsed": "Ishlatilgan",
+    "visitRemaining": "Qoldi",
     "unlimitedUntil": "Cheksiz {{date}} gacha",
     "today": "Bugun"
   },
