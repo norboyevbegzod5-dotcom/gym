@@ -38,6 +38,7 @@ export const AdminLayout = ({ children, onLogout }: AdminLayoutProps) => {
     { path: '/slots', label: 'Расписание', icon: '📅', badge: 0 },
     { path: '/bookings', label: 'Записи', icon: '📝', badge: pendingBookings },
     { path: '/orders', label: 'Заказы бара', icon: '🍹', badge: pendingOrders },
+    { path: '/feedbacks', label: 'Отзывы', icon: '⭐', badge: 0 },
   ];
 
   return (

@@ -106,6 +106,10 @@ export const bookingsApi = {
     api.patch(`/bookings/${id}/status`, { status }),
 };
 
+export const feedbacksApi = {
+  getAll: () => api.get('/feedbacks'),
+};
+
 export const ordersApi = {
   getAll: (params?: { status?: string }) =>
     api.get('/orders', { params }),

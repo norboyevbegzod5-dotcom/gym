@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
+import { TelegramService } from '../../telegram/telegram.service';
 
 // Статусы заказа (SQLite не поддерживает enum)
 const BarOrderStatus = {
@@ -17,7 +18,10 @@ interface OrderItemDto {
 
 @Injectable()
 export class BarService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private telegramService: TelegramService,
+  ) {}
 
   /**
    * Получить категории бара
@@ -98,7 +102,7 @@ export class BarService {
     });
 
     // Создаём заказ
-    return this.prisma.barOrder.create({
+    const order = await this.prisma.barOrder.create({
       data: {
         userId,
         status: BarOrderStatus.PENDING,
@@ -108,9 +112,26 @@ export class BarService {
         },
       },
       include: {
+        user: true,
         items: { include: { item: true } },
       },
     });
+
+    try {
+      const userName = [order.user.firstName, order.user.lastName].filter(Boolean).join(' ') || 'Клиент';
+      const itemsSummary = order.items
+        .map((oi) => `${oi.item?.nameRu ?? 'Товар'} × ${oi.quantity}`)
+        .join('\n');
+      await this.telegramService.notifyNewBarOrder({
+        userName,
+        itemsSummary: itemsSummary || '—',
+        total: order.total,
+      });
+    } catch (e) {
+      console.error('Telegram notify bar order failed:', e);
+    }
+
+    return order;
   }
 
   /**

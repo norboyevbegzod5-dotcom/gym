@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, Inject, forwardRef } from '@nestjs/com
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { Booking } from '@prisma/client';
 import { MembershipsService } from '../memberships/memberships.service';
+import { TelegramService } from '../../telegram/telegram.service';
 
 // Статусы бронирования (SQLite не поддерживает enum)
 const BookingStatus = {
@@ -25,6 +26,7 @@ export class BookingsService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => MembershipsService))
     private membershipsService: MembershipsService,
+    private telegramService: TelegramService,
   ) {}
 
   /**
@@ -100,6 +102,20 @@ export class BookingsService {
       await this.membershipsService.decrementVisit(membershipInfo.id);
     }
 
+    try {
+      const userName = [booking.user.firstName, booking.user.lastName].filter(Boolean).join(' ') || 'Клиент';
+      const dateStr = booking.slot.date instanceof Date ? booking.slot.date : new Date(booking.slot.date);
+      const startStr = booking.slot.startTime instanceof Date ? booking.slot.startTime : new Date(booking.slot.startTime);
+      const dateTime = `${dateStr.toLocaleDateString('ru-RU')} ${startStr.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}`;
+      await this.telegramService.notifyAdminNewBooking({
+        userName,
+        serviceName: booking.slot.service.nameRu,
+        dateTime,
+      });
+    } catch (e) {
+      console.error('Telegram notify booking failed:', e);
+    }
+
     return { ...booking, isMembership };
   }
 
@@ -135,7 +151,7 @@ export class BookingsService {
 
     const booking = await this.prisma.booking.findFirst({
       where: { id: bookingId, userId },
-      include: { feedback: true },
+      include: { feedback: true, user: true, slot: { include: { service: true } } },
     });
 
     if (!booking) {
@@ -148,13 +164,29 @@ export class BookingsService {
       throw new BadRequestException('Отзыв по этому занятию уже оставлен');
     }
 
-    return this.prisma.sessionFeedback.create({
+    const feedback = await this.prisma.sessionFeedback.create({
       data: {
         bookingId,
         rating,
         comment: comment?.trim() || null,
       },
     });
+
+    try {
+      const userName = [booking.user.firstName, booking.user.lastName].filter(Boolean).join(' ') || 'Клиент';
+      const dateStr = booking.slot.date instanceof Date ? booking.slot.date : new Date(booking.slot.date);
+      await this.telegramService.notifyNewFeedback({
+        userName,
+        serviceName: booking.slot.service.nameRu,
+        date: dateStr.toLocaleDateString('ru-RU'),
+        rating,
+        comment: comment?.trim() || null,
+      });
+    } catch (e) {
+      console.error('Telegram notify feedback failed:', e);
+    }
+
+    return feedback;
   }
 
   /**

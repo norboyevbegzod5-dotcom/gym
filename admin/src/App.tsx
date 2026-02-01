@@ -10,6 +10,7 @@ import { BarItemsPage } from './pages/BarItemsPage';
 import { ClientsPage } from './pages/ClientsPage';
 import { MembershipPlansPage } from './pages/MembershipPlansPage';
 import { UserMembershipsPage } from './pages/UserMembershipsPage';
+import { FeedbackPage } from './pages/FeedbackPage';
 import { AdminLayout } from './components/AdminLayout';
 import { authApi } from './api';
 
@@ -80,6 +81,7 @@ export const App = () => {
                   <Route path="/slots" element={<SlotsPage />} />
                   <Route path="/bookings" element={<BookingsPage />} />
                   <Route path="/orders" element={<OrdersPage />} />
+                  <Route path="/feedbacks" element={<FeedbackPage />} />
                 </Routes>
               </AdminLayout>
             ) : (

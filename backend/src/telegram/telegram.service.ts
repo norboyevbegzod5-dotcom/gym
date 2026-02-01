@@ -223,22 +223,88 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Отправить уведомление о новой записи админу
+   * Chat ID для уведомлений о записях (бронированиях)
+   */
+  private getBookingsChatId(): string | undefined {
+    return this.config.get<string>('BOOKINGS_CHAT_ID') || this.config.get<string>('ADMIN_CHAT_ID');
+  }
+
+  /**
+   * Chat ID для уведомлений о заказах бара
+   */
+  private getBarOrdersChatId(): string | undefined {
+    return this.config.get<string>('BAR_ORDERS_CHAT_ID') || this.config.get<string>('ADMIN_CHAT_ID');
+  }
+
+  /**
+   * Chat ID для уведомлений об отзывах
+   */
+  private getFeedbackChatId(): string | undefined {
+    return this.config.get<string>('FEEDBACK_CHAT_ID') || this.config.get<string>('ADMIN_CHAT_ID');
+  }
+
+  /**
+   * Отправить уведомление о новой записи в группу (BOOKINGS_CHAT_ID или ADMIN_CHAT_ID)
    */
   async notifyAdminNewBooking(booking: {
     userName: string;
     serviceName: string;
     dateTime: string;
   }) {
-    const adminChatId = this.config.get<string>('ADMIN_CHAT_ID');
-    if (!adminChatId || !this.bot) return;
+    const chatId = this.getBookingsChatId();
+    if (!chatId || !this.bot) return;
 
     const message = `📝 <b>Новая запись!</b>\n\n` +
       `👤 Клиент: ${booking.userName}\n` +
       `🏷 Услуга: ${booking.serviceName}\n` +
       `📅 Дата/время: ${booking.dateTime}`;
 
-    await this.sendMessage(adminChatId, message);
+    await this.sendMessage(chatId, message);
+  }
+
+  /**
+   * Отправить уведомление о новом заказе бара в группу (BAR_ORDERS_CHAT_ID или ADMIN_CHAT_ID)
+   */
+  async notifyNewBarOrder(order: {
+    userName: string;
+    itemsSummary: string;
+    total: number;
+  }) {
+    const chatId = this.getBarOrdersChatId();
+    if (!chatId || !this.bot) return;
+
+    const message = `🍹 <b>Новый заказ бара!</b>\n\n` +
+      `👤 Клиент: ${order.userName}\n` +
+      `📋 ${order.itemsSummary}\n` +
+      `💰 Итого: ${order.total} UZS`;
+
+    await this.sendMessage(chatId, message);
+  }
+
+  /**
+   * Отправить уведомление о новом отзыве в группу (FEEDBACK_CHAT_ID или ADMIN_CHAT_ID)
+   */
+  async notifyNewFeedback(feedback: {
+    userName: string;
+    serviceName: string;
+    date: string;
+    rating: number;
+    comment?: string | null;
+  }) {
+    const chatId = this.getFeedbackChatId();
+    if (!chatId || !this.bot) return;
+
+    let message = `⭐ <b>Новый отзыв!</b>\n\n` +
+      `👤 Клиент: ${feedback.userName}\n` +
+      `🏷 Занятие: ${feedback.serviceName}\n` +
+      `📅 Дата: ${feedback.date}\n` +
+      `⭐ Оценка: ${feedback.rating}/5`;
+
+    if (feedback.comment?.trim()) {
+      message += `\n\n💬 Комментарий: ${feedback.comment.trim()}`;
+    }
+
+    await this.sendMessage(chatId, message);
   }
 
   /**

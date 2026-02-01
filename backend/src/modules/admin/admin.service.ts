@@ -438,6 +438,22 @@ export class AdminService {
     });
   }
 
+  // ==================== FEEDBACKS (ОТЗЫВЫ) ====================
+
+  async getFeedbacks() {
+    return this.prisma.sessionFeedback.findMany({
+      include: {
+        booking: {
+          include: {
+            user: true,
+            slot: { include: { service: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   // ==================== BAR ORDERS ====================
 
   async getBarOrders(status?: string) {

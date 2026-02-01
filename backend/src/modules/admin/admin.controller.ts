@@ -230,6 +230,12 @@ export class AdminController implements OnModuleInit {
     return this.adminService.updateBookingStatus(id, body.status);
   }
 
+  @Get('feedbacks')
+  async getFeedbacks(@Headers('authorization') auth: string) {
+    await this.verifyAdmin(auth);
+    return this.adminService.getFeedbacks();
+  }
+
   // ==================== BAR ORDERS ====================
 
   @Get('orders')
