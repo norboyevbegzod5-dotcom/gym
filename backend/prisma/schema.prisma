@@ -104,7 +104,21 @@ model Booking {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  feedback     SessionFeedback?
+
   @@map("bookings")
+}
+
+// Отзыв после занятия (один на одно бронирование)
+model SessionFeedback {
+  id         String   @id @default(cuid())
+  bookingId  String   @unique @map("booking_id")
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  rating     Int      // 1–5, ответ на «Как прошли занятия сегодня?»
+  comment    String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("session_feedbacks")
 }
 
 // Категория бара

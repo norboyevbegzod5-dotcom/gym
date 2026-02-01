@@ -104,15 +104,56 @@ export class BookingsService {
   }
 
   /**
-   * Получить записи пользователя
+   * Получить записи пользователя (с флагом наличия отзыва)
    */
-  async findByUser(userId: string): Promise<Booking[]> {
+  async findByUser(userId: string) {
     return this.prisma.booking.findMany({
       where: { userId },
       include: {
         slot: { include: { service: true } },
+        feedback: { select: { id: true } },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Создать отзыв после занятия (только для COMPLETED, один раз на бронирование)
+   */
+  async createFeedback(
+    userId: string,
+    dto: { bookingId: string; rating: number; comment?: string },
+  ) {
+    const { bookingId, rating, comment } = dto;
+
+    if (rating < 1 || rating > 5) {
+      throw new BadRequestException('Оценка должна быть от 1 до 5');
+    }
+    if (comment != null && comment.length > 1000) {
+      throw new BadRequestException('Комментарий не более 1000 символов');
+    }
+
+    const booking = await this.prisma.booking.findFirst({
+      where: { id: bookingId, userId },
+      include: { feedback: true },
+    });
+
+    if (!booking) {
+      throw new BadRequestException('Запись не найдена');
+    }
+    if (booking.status !== BookingStatus.COMPLETED) {
+      throw new BadRequestException('Отзыв можно оставить только после завершённого занятия');
+    }
+    if (booking.feedback) {
+      throw new BadRequestException('Отзыв по этому занятию уже оставлен');
+    }
+
+    return this.prisma.sessionFeedback.create({
+      data: {
+        bookingId,
+        rating,
+        comment: comment?.trim() || null,
+      },
     });
   }
 

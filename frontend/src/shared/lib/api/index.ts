@@ -56,6 +56,9 @@ export const bookingsApi = {
   getMy: () => api.get('/bookings'),
   
   cancel: (id: string) => api.delete(`/bookings/${id}`),
+  
+  submitFeedback: (data: { bookingId: string; rating: number; comment?: string }) =>
+    api.post('/bookings/feedback', data),
 };
 
 export const barApi = {

@@ -30,4 +30,12 @@ export class BookingsController {
   async cancel(@CurrentUser() user: User, @Param('id') id: string) {
     return this.bookingsService.cancelByUser(id, user.id);
   }
+
+  @Post('feedback')
+  async createFeedback(
+    @CurrentUser() user: User,
+    @Body() dto: { bookingId: string; rating: number; comment?: string },
+  ) {
+    return this.bookingsService.createFeedback(user.id, dto);
+  }
 }

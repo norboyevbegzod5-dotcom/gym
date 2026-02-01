@@ -7,12 +7,14 @@ interface Booking {
   status: string;
   comment: string | null;
   createdAt: string;
+  feedback?: { id: string } | null;
   slot: {
     id: string;
     date: string;
     startTime: string;
     endTime: string;
-    trainer: string | null;
+    trainer?: string | null;
+    specialist?: string | null;
     service: {
       id: string;
       name: string;
@@ -28,6 +30,11 @@ export const BookingsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState<string | null>(null);
+  const [feedbackBooking, setFeedbackBooking] = useState<Booking | null>(null);
+  const [feedbackRating, setFeedbackRating] = useState(0);
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -50,6 +57,47 @@ export const BookingsPage = () => {
   const handleCancelClick = (bookingId: string) => {
     window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
     setShowConfirm(bookingId);
+  };
+
+  const handleFeedbackOpen = (booking: Booking) => {
+    window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
+    setFeedbackBooking(booking);
+    setFeedbackRating(0);
+    setFeedbackComment('');
+    setFeedbackError(null);
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!feedbackBooking || feedbackRating < 1 || feedbackRating > 5) return;
+    setFeedbackSubmitting(true);
+    setFeedbackError(null);
+    try {
+      await bookingsApi.submitFeedback({
+        bookingId: feedbackBooking.id,
+        rating: feedbackRating,
+        comment: feedbackComment.trim() || undefined,
+      });
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success');
+      setFeedbackBooking(null);
+      await fetchBookings();
+    } catch (err: unknown) {
+      const msg =
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        err.response &&
+        typeof err.response === 'object' &&
+        'data' in err.response &&
+        err.response.data &&
+        typeof err.response.data === 'object' &&
+        'message' in err.response.data
+          ? String((err.response.data as { message?: unknown }).message)
+          : t('feedback.error');
+      setFeedbackError(msg);
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('error');
+    } finally {
+      setFeedbackSubmitting(false);
+    }
   };
 
   const handleCancelConfirm = async (bookingId: string) => {
@@ -193,9 +241,9 @@ export const BookingsPage = () => {
                           {formatTime(booking.slot.startTime)} - {formatTime(booking.slot.endTime)}
                         </span>
                       </div>
-                      {booking.slot.trainer && (
+                      {(booking.slot.trainer ?? booking.slot.specialist) && (
                         <div className="booking-trainer">
-                          {t('booking.specialist')}: {booking.slot.trainer}
+                          {t('booking.specialist')}: {booking.slot.trainer ?? booking.slot.specialist}
                         </div>
                       )}
                     </div>
@@ -239,6 +287,17 @@ export const BookingsPage = () => {
                         </span>
                       </div>
                     </div>
+                    {booking.status === 'COMPLETED' && !booking.feedback && (
+                      <button
+                        className="feedback-btn"
+                        onClick={() => handleFeedbackOpen(booking)}
+                      >
+                        {t('feedback.leaveReview')}
+                      </button>
+                    )}
+                    {booking.status === 'COMPLETED' && booking.feedback && (
+                      <div className="feedback-done">{t('feedback.thankYou')}</div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -264,6 +323,55 @@ export const BookingsPage = () => {
                 onClick={() => handleCancelConfirm(showConfirm)}
               >
                 {t('common.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback modal */}
+      {feedbackBooking && (
+        <div className="modal-overlay" onClick={() => setFeedbackBooking(null)}>
+          <div className="modal feedback-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="feedback-modal-title">{t('feedback.title')}</h3>
+            <p className="feedback-modal-context">
+              {feedbackBooking.slot.service.name} · {formatDate(feedbackBooking.slot.date)}
+            </p>
+            <p className="feedback-question">{t('feedback.howWasSession')}</p>
+            <div className="feedback-stars">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`feedback-star ${feedbackRating >= n ? 'active' : ''}`}
+                  onClick={() => setFeedbackRating(n)}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <label className="feedback-label">{t('feedback.commentToday')}</label>
+            <textarea
+              className="feedback-textarea"
+              value={feedbackComment}
+              onChange={(e) => setFeedbackComment(e.target.value)}
+              placeholder={t('feedback.commentPlaceholder')}
+              rows={3}
+            />
+            {feedbackError && <p className="feedback-error">{feedbackError}</p>}
+            <div className="modal-buttons">
+              <button
+                className="modal-btn secondary"
+                onClick={() => setFeedbackBooking(null)}
+              >
+                {t('common.back')}
+              </button>
+              <button
+                className="modal-btn primary"
+                onClick={handleFeedbackSubmit}
+                disabled={feedbackSubmitting || feedbackRating < 1}
+              >
+                {feedbackSubmitting ? t('common.loading') : t('feedback.submit')}
               </button>
             </div>
           </div>
@@ -491,5 +599,107 @@ const styles = `
   .modal-btn.danger {
     background: #f44336;
     color: #fff;
+  }
+
+  .modal-btn.primary {
+    background: var(--tg-theme-button-color, #3390ec);
+    color: var(--tg-theme-button-text-color, #fff);
+  }
+
+  .feedback-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    background: rgba(51, 144, 236, 0.15);
+    color: var(--tg-theme-button-color, #3390ec);
+    border: 1px solid rgba(51, 144, 236, 0.4);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .feedback-done {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #4caf50;
+    text-align: center;
+  }
+
+  .feedback-modal {
+    max-width: 340px;
+  }
+
+  .feedback-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: var(--tg-theme-text-color, #000);
+  }
+
+  .feedback-modal-context {
+    font-size: 13px;
+    color: var(--tg-theme-hint-color, #999);
+    margin: 0 0 20px 0;
+  }
+
+  .feedback-question {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0 0 12px 0;
+    color: var(--tg-theme-text-color, #000);
+  }
+
+  .feedback-stars {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .feedback-star {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .feedback-star.active {
+    color: #ffc107;
+    background: rgba(255, 193, 7, 0.15);
+    border-color: rgba(255, 193, 7, 0.5);
+  }
+
+  .feedback-label {
+    display: block;
+    font-size: 13px;
+    color: var(--tg-theme-hint-color, #999);
+    margin-bottom: 8px;
+  }
+
+  .feedback-textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid var(--tg-theme-secondary-bg-color, #e0e0e0);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+
+  .feedback-error {
+    font-size: 13px;
+    color: #f44336;
+    margin: -8px 0 12px 0;
   }
 `;

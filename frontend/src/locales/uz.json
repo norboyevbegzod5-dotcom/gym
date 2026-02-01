@@ -52,6 +52,16 @@
       "COMPLETED": "Yakunlangan"
     }
   },
+  "feedback": {
+    "title": "Fikr qoldirish",
+    "howWasSession": "Bugun mashg'ulot qanday o'tdi?",
+    "commentToday": "Bugungi izoh",
+    "commentPlaceholder": "Biror narsa yozing (ixtiyoriy)",
+    "submit": "Yuborish",
+    "leaveReview": "Fikr qoldirish",
+    "thankYou": "Rahmat, fikr saqlandi",
+    "error": "Fikrni yuborib bo'lmadi"
+  },
   "booking": {
     "title": "Xizmatga yozilish",
     "selectDate": "Sanani tanlang",
