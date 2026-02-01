@@ -11,6 +11,7 @@ import { ClientsPage } from './pages/ClientsPage';
 import { MembershipPlansPage } from './pages/MembershipPlansPage';
 import { UserMembershipsPage } from './pages/UserMembershipsPage';
 import { FeedbackPage } from './pages/FeedbackPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { AdminLayout } from './components/AdminLayout';
 import { authApi } from './api';
 
@@ -82,6 +83,7 @@ export const App = () => {
                   <Route path="/bookings" element={<BookingsPage />} />
                   <Route path="/orders" element={<OrdersPage />} />
                   <Route path="/feedbacks" element={<FeedbackPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
                 </Routes>
               </AdminLayout>
             ) : (

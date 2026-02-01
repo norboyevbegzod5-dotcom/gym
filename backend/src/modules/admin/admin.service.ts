@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { TelegramService } from '../../telegram/telegram.service';
+import { SettingsService, TelegramChatSettings } from '../settings/settings.service';
 
 @Injectable()
 export class AdminService {
@@ -10,6 +11,7 @@ export class AdminService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private telegramService: TelegramService,
+    private settingsService: SettingsService,
   ) {}
 
   // ==================== AUTH ====================
@@ -996,6 +998,16 @@ export class AdminService {
       },
       include: { user: true, plan: true },
     });
+  }
+
+  // ==================== SETTINGS (TELEGRAM CHAT IDS) ====================
+
+  async getTelegramChatSettings() {
+    return this.settingsService.getTelegramChatSettings();
+  }
+
+  async updateTelegramChatSettings(data: Partial<TelegramChatSettings>) {
+    return this.settingsService.updateTelegramChatSettings(data);
   }
 
   // ==================== SEED ADMIN ====================

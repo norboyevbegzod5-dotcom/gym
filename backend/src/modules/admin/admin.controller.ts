@@ -236,6 +236,23 @@ export class AdminController implements OnModuleInit {
     return this.adminService.getFeedbacks();
   }
 
+  // ==================== SETTINGS (TELEGRAM CHAT IDS) ====================
+
+  @Get('settings/telegram-chats')
+  async getTelegramChatSettings(@Headers('authorization') auth: string) {
+    await this.verifyAdmin(auth);
+    return this.adminService.getTelegramChatSettings();
+  }
+
+  @Patch('settings/telegram-chats')
+  async updateTelegramChatSettings(
+    @Headers('authorization') auth: string,
+    @Body() body: Partial<{ bookingsChatId: string; barOrdersChatId: string; feedbackChatId: string }>,
+  ) {
+    await this.verifyAdmin(auth);
+    return this.adminService.updateTelegramChatSettings(body);
+  }
+
   // ==================== BAR ORDERS ====================
 
   @Get('orders')

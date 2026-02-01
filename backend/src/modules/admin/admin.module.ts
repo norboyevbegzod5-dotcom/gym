@@ -5,11 +5,13 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { PrismaModule } from '../../shared/prisma/prisma.module';
 import { TelegramModule } from '../../telegram/telegram.module';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
     PrismaModule,
     TelegramModule,
+    SettingsModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

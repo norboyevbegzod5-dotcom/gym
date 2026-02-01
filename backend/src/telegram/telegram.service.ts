@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf } from 'telegraf';
 import { PrismaService } from '../shared/prisma/prisma.service';
+import { SettingsService } from '../modules/settings/settings.service';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
@@ -10,6 +11,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   constructor(
     private config: ConfigService,
     private prisma: PrismaService,
+    private settingsService: SettingsService,
   ) {
     const token = this.config.get<string>('TELEGRAM_BOT_TOKEN');
     if (token) {
@@ -223,35 +225,41 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Chat ID для уведомлений о записях (бронированиях)
+   * Chat ID для уведомлений о записях (из админки или .env)
    */
-  private getBookingsChatId(): string | undefined {
+  private async getBookingsChatId(): Promise<string | undefined> {
+    const fromDb = await this.settingsService.get('BOOKINGS_CHAT_ID');
+    if (fromDb?.trim()) return fromDb.trim();
     return this.config.get<string>('BOOKINGS_CHAT_ID') || this.config.get<string>('ADMIN_CHAT_ID');
   }
 
   /**
-   * Chat ID для уведомлений о заказах бара
+   * Chat ID для уведомлений о заказах бара (из админки или .env)
    */
-  private getBarOrdersChatId(): string | undefined {
+  private async getBarOrdersChatId(): Promise<string | undefined> {
+    const fromDb = await this.settingsService.get('BAR_ORDERS_CHAT_ID');
+    if (fromDb?.trim()) return fromDb.trim();
     return this.config.get<string>('BAR_ORDERS_CHAT_ID') || this.config.get<string>('ADMIN_CHAT_ID');
   }
 
   /**
-   * Chat ID для уведомлений об отзывах
+   * Chat ID для уведомлений об отзывах (из админки или .env)
    */
-  private getFeedbackChatId(): string | undefined {
+  private async getFeedbackChatId(): Promise<string | undefined> {
+    const fromDb = await this.settingsService.get('FEEDBACK_CHAT_ID');
+    if (fromDb?.trim()) return fromDb.trim();
     return this.config.get<string>('FEEDBACK_CHAT_ID') || this.config.get<string>('ADMIN_CHAT_ID');
   }
 
   /**
-   * Отправить уведомление о новой записи в группу (BOOKINGS_CHAT_ID или ADMIN_CHAT_ID)
+   * Отправить уведомление о новой записи в группу
    */
   async notifyAdminNewBooking(booking: {
     userName: string;
     serviceName: string;
     dateTime: string;
   }) {
-    const chatId = this.getBookingsChatId();
+    const chatId = await this.getBookingsChatId();
     if (!chatId || !this.bot) return;
 
     const message = `📝 <b>Новая запись!</b>\n\n` +
@@ -263,14 +271,14 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Отправить уведомление о новом заказе бара в группу (BAR_ORDERS_CHAT_ID или ADMIN_CHAT_ID)
+   * Отправить уведомление о новом заказе бара в группу
    */
   async notifyNewBarOrder(order: {
     userName: string;
     itemsSummary: string;
     total: number;
   }) {
-    const chatId = this.getBarOrdersChatId();
+    const chatId = await this.getBarOrdersChatId();
     if (!chatId || !this.bot) return;
 
     const message = `🍹 <b>Новый заказ бара!</b>\n\n` +
@@ -282,7 +290,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
-   * Отправить уведомление о новом отзыве в группу (FEEDBACK_CHAT_ID или ADMIN_CHAT_ID)
+   * Отправить уведомление о новом отзыве в группу
    */
   async notifyNewFeedback(feedback: {
     userName: string;
@@ -291,7 +299,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     rating: number;
     comment?: string | null;
   }) {
-    const chatId = this.getFeedbackChatId();
+    const chatId = await this.getFeedbackChatId();
     if (!chatId || !this.bot) return;
 
     let message = `⭐ <b>Новый отзыв!</b>\n\n` +

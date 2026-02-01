@@ -11,6 +11,7 @@ import { MembershipsModule } from './modules/memberships/memberships.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AppGuardModule } from './modules/app-guard/app-guard.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AppGuardModule } from './modules/app-guard/app-guard.module';
       isGlobal: true,
     }),
     PrismaModule,
+    SettingsModule,
     AppGuardModule,
     AuthModule,
     UsersModule,

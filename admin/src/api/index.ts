@@ -110,6 +110,18 @@ export const feedbacksApi = {
   getAll: () => api.get('/feedbacks'),
 };
 
+export type TelegramChatSettings = {
+  bookingsChatId: string | null;
+  barOrdersChatId: string | null;
+  feedbackChatId: string | null;
+};
+
+export const settingsApi = {
+  getTelegramChats: () => api.get<TelegramChatSettings>('/settings/telegram-chats'),
+  updateTelegramChats: (data: Partial<TelegramChatSettings>) =>
+    api.patch<TelegramChatSettings>('/settings/telegram-chats', data),
+};
+
 export const ordersApi = {
   getAll: (params?: { status?: string }) =>
     api.get('/orders', { params }),
