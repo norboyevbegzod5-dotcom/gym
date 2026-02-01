@@ -125,12 +125,17 @@ const styles = `
     font-weight: 500;
   }
 
-  /* Categories Grid */
+  /* Categories Grid - fixed at top when scrolling */
   .categories-grid {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
     margin-bottom: 32px;
+    background: var(--tg-theme-bg-color, var(--bg-page, #1a1a1a));
+    padding-bottom: 8px;
   }
 
   .category-card {

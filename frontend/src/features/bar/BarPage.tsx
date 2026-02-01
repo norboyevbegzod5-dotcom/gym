@@ -172,10 +172,10 @@ export const BarPage = () => {
   return (
     <div className="bar-page">
       <div className="page-header">
-        <h1 className="page-title">{t('bar.menu')}</h1>
         <Link to="/bar/orders" className="my-orders-link">
           {t('bar.myOrders')}
         </Link>
+        <h1 className="page-title">{t('bar.menu')}</h1>
       </div>
 
       {orderSuccess && (
@@ -414,14 +414,18 @@ const styles = `
     text-transform: uppercase;
   }
 
-  /* Category tabs */
+  /* Category tabs - fixed at top when scrolling */
   .category-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
     gap: 10px;
     overflow-x: auto;
     padding-bottom: 16px;
     margin-bottom: 8px;
     -webkit-overflow-scrolling: touch;
+    background: var(--tg-theme-bg-color, var(--bg-page, #1a1a1a));
   }
 
   .category-tabs::-webkit-scrollbar {
@@ -690,7 +694,7 @@ const styles = `
   /* Cart bar */
   .cart-bar {
     position: fixed;
-    bottom: 85px;
+    bottom: 100px;
     left: 16px;
     right: 16px;
     animation: slide-up 0.3s ease-out;
