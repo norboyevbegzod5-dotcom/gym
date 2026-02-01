@@ -106,7 +106,23 @@
     "freezeDays": "Muzlatish kunlari",
     "freezeMembership": "Muzlatish",
     "unfreezeMembership": "Ochish",
-    "includedInMembership": "Abonementga kiritilgan"
+    "includedInMembership": "Abonementga kiritilgan",
+    "visitsLeftShort": "tashrif qoldi",
+    "unlimitedUntil": "Cheksiz {{date}} gacha",
+    "today": "Bugun"
+  },
+  "membership": {
+    "noPlans": "Mavjud tariflar yo'q",
+    "unlimitedDays": "{{days}} kun cheksiz",
+    "visitsPlan": "{{visits}} tashrif / {{days}} kun",
+    "planTitle": "Tarif",
+    "planNotFound": "Tarif topilmadi",
+    "purchaseError": "Abonement rasmiylashtirib bo'lmadi",
+    "purchaseSuccess": "Abonement muvaffaqiyatli rasmiylashtirildi!",
+    "buy": "Abonement sotib olish",
+    "unlimited": "Cheksiz",
+    "visits": "Tashriflar bo'yicha",
+    "includedServices": "Tarifga kiritilgan"
   },
   "auth": {
     "title": "Kirish",

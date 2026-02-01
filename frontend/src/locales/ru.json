@@ -106,7 +106,23 @@
     "freezeDays": "Дней заморозки",
     "freezeMembership": "Заморозить",
     "unfreezeMembership": "Разморозить",
-    "includedInMembership": "Включено в абонемент"
+    "includedInMembership": "Включено в абонемент",
+    "visitsLeftShort": "занятий осталось",
+    "unlimitedUntil": "Безлимит до {{date}}",
+    "today": "Сегодня"
+  },
+  "membership": {
+    "noPlans": "Нет доступных тарифов",
+    "unlimitedDays": "{{days}} дней безлимит",
+    "visitsPlan": "{{visits}} занятий / {{days}} дней",
+    "planTitle": "Тариф",
+    "planNotFound": "Тариф не найден",
+    "purchaseError": "Не удалось оформить абонемент",
+    "purchaseSuccess": "Абонемент успешно оформлен!",
+    "buy": "Купить абонемент",
+    "unlimited": "Безлимит",
+    "visits": "По визитам",
+    "includedServices": "Входит в тариф"
   },
   "auth": {
     "title": "Вход",

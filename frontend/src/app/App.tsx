@@ -14,6 +14,7 @@ import { BookingsPage } from '@/features/bookings/BookingsPage';
 import { BarPage } from '@/features/bar/BarPage';
 import { MyOrdersPage } from '@/features/bar/MyOrdersPage';
 import { ProfilePage } from '@/features/profile/ProfilePage';
+import { MembershipPlanDetailPage } from '@/features/membership/MembershipPlanDetailPage';
 import { LoginPage } from '@/features/auth/LoginPage';
 
 function mapMeToUser(me: { id: string; phone: string | null; firstName: string | null; lastName: string | null; username: string | null; language: string }) {
@@ -81,6 +82,7 @@ export const App = () => {
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/services/:categoryId" element={<ServicesPage />} />
                 <Route path="/service/:serviceId" element={<ServiceDetailPage />} />
+                <Route path="/membership/plan/:planId" element={<MembershipPlanDetailPage />} />
                 <Route path="/bookings" element={<BookingsPage />} />
                 <Route path="/bar" element={<BarPage />} />
                 <Route path="/bar/orders" element={<MyOrdersPage />} />

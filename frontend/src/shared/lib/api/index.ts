@@ -86,6 +86,9 @@ export const membershipsApi = {
   
   getMy: () => api.get('/memberships/my'),
   
+  purchase: (planId: string, paymentType?: string) =>
+    api.post('/memberships/purchase', { planId, paymentType: paymentType || 'OFFLINE' }),
+  
   freeze: () => api.post('/memberships/my/freeze'),
   
   unfreeze: () => api.post('/memberships/my/unfreeze'),

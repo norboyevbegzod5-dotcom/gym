@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Headers, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Headers, UseGuards } from '@nestjs/common';
 import { MembershipsService } from './memberships.service';
 import { AppAuthGuard } from '../../shared/guards/app-auth.guard';
 import { CurrentUser } from '../../shared/decorators/user.decorator';
@@ -40,6 +40,22 @@ export class MembershipsController {
   @UseGuards(AppAuthGuard)
   async unfreezeMembership(@CurrentUser() user: { id: string }) {
     return this.membershipsService.unfreezeMembership(user.id);
+  }
+
+  /**
+   * Покупка абонемента
+   */
+  @Post('purchase')
+  @UseGuards(AppAuthGuard)
+  async purchase(
+    @CurrentUser() user: { id: string },
+    @Body() body: { planId: string; paymentType?: string },
+  ) {
+    return this.membershipsService.purchase(
+      user.id,
+      body.planId,
+      body.paymentType || 'OFFLINE',
+    );
   }
 
   /**

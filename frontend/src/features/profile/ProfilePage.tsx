@@ -283,6 +283,66 @@ export const ProfilePage = () => {
             </div>
           </div>
 
+          {/* Large visits counter or unlimited until */}
+          {!membership.isFrozen && (
+            <div className="membership-visits-hero">
+              {membership.plan.type === 'VISITS' && membership.remainingVisits !== null ? (
+                <>
+                  <span className="visits-hero-value">{membership.remainingVisits}</span>
+                  <span className="visits-hero-label">{t('profile.visitsLeftShort')}</span>
+                </>
+              ) : (
+                <span className="visits-hero-unlimited">
+                  {t('profile.unlimitedUntil', { date: formatDate(membership.endDate) })}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Calendar strip: period start – end with today marker */}
+          {!membership.isFrozen && (
+            <div className="membership-calendar-strip">
+              <div className="calendar-strip-labels">
+                <span>{formatDate(membership.startDate)}</span>
+                <span className="calendar-today-label">{t('profile.today')}</span>
+                <span>{formatDate(membership.endDate)}</span>
+              </div>
+              <div className="calendar-strip-bar">
+                <div
+                  className="calendar-strip-elapsed"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      Math.max(
+                        0,
+                        ((new Date().getTime() - new Date(membership.startDate).getTime()) /
+                          (new Date(membership.endDate).getTime() -
+                            new Date(membership.startDate).getTime())) *
+                          100
+                    )
+                    )}%`,
+                  }}
+                />
+                <div
+                  className="calendar-strip-today"
+                  style={{
+                    left: `${Math.min(
+                      100,
+                      Math.max(
+                        0,
+                        ((new Date().getTime() - new Date(membership.startDate).getTime()) /
+                          (new Date(membership.endDate).getTime() -
+                            new Date(membership.startDate).getTime())) *
+                          100
+                    )
+                    )}%`,
+                  }}
+                  title={t('profile.today')}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="membership-plan">
             <span className="plan-name">{membership.plan.name}</span>
             <span className="plan-type">
@@ -718,6 +778,92 @@ const styles = `
   .membership-status.frozen {
     background: rgba(51, 144, 236, 0.2);
     color: #3390ec;
+  }
+
+  .membership-visits-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 20px 0;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+  }
+
+  .visits-hero-value {
+    font-size: 48px;
+    font-weight: 800;
+    background: var(--gradient-fire);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .visits-hero-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .visits-hero-unlimited {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+  }
+
+  .membership-calendar-strip {
+    margin-bottom: 20px;
+  }
+
+  .calendar-strip-labels {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .calendar-today-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--primary);
+    text-transform: uppercase;
+  }
+
+  .calendar-strip-bar {
+    position: relative;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    overflow: visible;
+  }
+
+  .calendar-strip-elapsed {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 6px;
+    background: var(--gradient-fire);
+    opacity: 0.6;
+    transition: width 0.3s ease;
+  }
+
+  .calendar-strip-today {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 8px rgba(255, 77, 0, 0.6);
+    z-index: 1;
   }
 
   .membership-plan {

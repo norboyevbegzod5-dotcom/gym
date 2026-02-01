@@ -225,6 +225,75 @@ export class MembershipsService {
   }
 
   /**
+   * Покупка абонемента пользователем (Mini App)
+   */
+  async purchase(userId: string, planId: string, paymentType = 'OFFLINE') {
+    const plan = await this.prisma.membershipPlan.findUnique({
+      where: { id: planId },
+    });
+
+    if (!plan) {
+      throw new NotFoundException('Тариф не найден');
+    }
+
+    if (!plan.isActive) {
+      throw new BadRequestException('Тариф недоступен для покупки');
+    }
+
+    await this.checkAndExpireMemberships(userId);
+
+    const existing = await this.prisma.userMembership.findFirst({
+      where: {
+        userId,
+        status: { in: ['ACTIVE', 'FROZEN'] },
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException('У вас уже есть активный абонемент');
+    }
+
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + plan.durationDays);
+
+    const membership = await this.prisma.userMembership.create({
+      data: {
+        userId,
+        planId: plan.id,
+        startDate,
+        endDate,
+        remainingVisits: plan.type === 'VISITS' ? plan.totalVisits : null,
+        paymentType,
+      },
+      include: {
+        plan: {
+          include: {
+            includedServices: {
+              include: { service: true },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      id: membership.id,
+      plan: {
+        id: membership.plan.id,
+        name: membership.plan.nameRu,
+        type: membership.plan.type,
+        durationDays: membership.plan.durationDays,
+        totalVisits: membership.plan.totalVisits,
+      },
+      startDate: membership.startDate,
+      endDate: membership.endDate,
+      remainingVisits: membership.remainingVisits,
+      status: membership.status,
+    };
+  }
+
+  /**
    * Списать визит (для абонемента по визитам)
    */
   async decrementVisit(membershipId: string) {

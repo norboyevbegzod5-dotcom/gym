@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from '@/shared/lib/i18n';
 import { useParams, useNavigate } from 'react-router-dom';
-import { servicesApi } from '@/shared/lib/api';
+import { servicesApi, membershipsApi } from '@/shared/lib/api';
 
 interface Service {
   id: string;
@@ -11,14 +11,26 @@ interface Service {
   durationMinutes: number;
 }
 
+interface MembershipPlan {
+  id: string;
+  name: string;
+  type: string;
+  durationDays: number;
+  totalVisits: number | null;
+  price: number;
+  includedServices: Array<{ id: string; name: string }>;
+}
+
 export const ServicesPage = () => {
   const { t, i18n } = useTranslation();
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
   
   const [services, setServices] = useState<Service[]>([]);
+  const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isMembershipCategory = categoryId === 'membership';
 
   useEffect(() => {
     if (!categoryId) {
@@ -26,26 +38,38 @@ export const ServicesPage = () => {
       return;
     }
 
-    const fetchServices = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await servicesApi.getByCategory(categoryId, i18n.language);
-        setServices(response.data);
+        if (isMembershipCategory) {
+          const response = await membershipsApi.getPlans(i18n.language);
+          setPlans(response.data);
+          setServices([]);
+        } else {
+          const response = await servicesApi.getByCategory(categoryId, i18n.language);
+          setServices(response.data);
+          setPlans([]);
+        }
       } catch (err) {
-        console.error('Failed to fetch services:', err);
+        console.error('Failed to fetch:', err);
         setError(t('common.error'));
       } finally {
         setLoading(false);
       }
     };
 
-    fetchServices();
-  }, [categoryId, i18n.language, navigate, t]);
+    fetchData();
+  }, [categoryId, isMembershipCategory, i18n.language, navigate, t]);
 
   const handleServiceClick = (serviceId: string) => {
     window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
     navigate(`/service/${serviceId}`);
+  };
+
+  const handlePlanClick = (planId: string) => {
+    window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light');
+    navigate(`/membership/plan/${planId}`);
   };
 
   const handleBack = () => {
@@ -97,7 +121,42 @@ export const ServicesPage = () => {
         </h1>
       </div>
 
-      {services.length === 0 ? (
+      {isMembershipCategory ? (
+        plans.length === 0 ? (
+          <div className="empty-state">
+            <span className="empty-icon">💳</span>
+            <p>{t('membership.noPlans')}</p>
+          </div>
+        ) : (
+          <div className="services-list">
+            {plans.map((plan) => (
+              <button
+                key={plan.id}
+                className="service-card"
+                onClick={() => handlePlanClick(plan.id)}
+              >
+                <div className="service-info">
+                  <h3 className="service-name">{plan.name}</h3>
+                  <div className="service-meta">
+                    <span className="service-duration">
+                      {plan.type === 'UNLIMITED'
+                        ? t('membership.unlimitedDays', { days: plan.durationDays })
+                        : t('membership.visitsPlan', {
+                            visits: plan.totalVisits,
+                            days: plan.durationDays,
+                          })}
+                    </span>
+                  </div>
+                </div>
+                <div className="service-price">
+                  {formatPrice(plan.price)}
+                </div>
+                <span className="arrow">›</span>
+              </button>
+            ))}
+          </div>
+        )
+      ) : services.length === 0 ? (
         <div className="empty-state">
           <span className="empty-icon">📋</span>
           <p>{t('services.empty')}</p>
